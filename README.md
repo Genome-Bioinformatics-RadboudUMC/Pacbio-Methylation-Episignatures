@@ -1,3 +1,9 @@
 # Ivashchenko-Pacbio-Methylation
 
-## Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing
+Repository with scripts used in analyses from: "_Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing_"
+
+## Downsampling
+
+## Differential methylation analysis on PacBio LRS data
+
+## Power analysis
