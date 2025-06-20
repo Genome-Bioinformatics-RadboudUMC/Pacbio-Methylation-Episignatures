@@ -1,6 +1,6 @@
 # Ivashchenko-Pacbio-Methylation
 
-Repository with scripts used in analyses from: "_Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing_"
+Scripts used in analyses from: "_Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing_"
 
 ## Downsampling
 
@@ -41,8 +41,8 @@ Script to model CpG methylation and run power analysis over many sample sizes.
 **Steps:**  
 1. Estimate methylation mean and SD using case/control groups  
 2. Loop through case/control sizes (10 to 100 by 5)  
-3. Run power calculation script on each size combo  
-4. Estimate control SD for PacBio imprinted regions  
+3. Run power calculation script on each size combination  
+4. Estimate control SD for imprinted regions  
 5. Simulate samples (e.g., 500 samples over 20M sites)  
 6. Simulate signature detection:
    - Leave one sample out  
