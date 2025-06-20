@@ -20,17 +20,37 @@ Pipeline to identify differentially methylated CpGs and generate a consensus sig
 **File:** `diff_methylation_pipeline.sh`  
 **Steps:**  
 1. Format input CpG coverage files into a matrix  
-2. Identify differentially methylated CpGs (signature) using median-based stats  
+2. Identify differentially methylated CpGs (signature)  
 3. Extract consensus CpG signature across iterations  
 4. Validate signature using:
    - PCA plot
    - Hierarchical clustering
    - Pearson correlation  
 
-**Input:** `.combined.bed` files for controls, cases, and test samples  
+**Input:** `.combined.bed` files for group1, group2, and test samples  
 **Output:**  
 - Signature CpG lists  
 - Train/test matrices  
 - Plots and correlation stats  
 
 ## Power analysis
+
+Script to model CpG methylation and run power analysis over many sample sizes.
+
+**File:** `power_analysis.sh`  
+**Steps:**  
+1. Estimate methylation mean and SD using case/control groups  
+2. Loop through case/control sizes (10 to 100 by 5)  
+3. Run power calculation script on each size combo  
+4. Estimate control SD for PacBio imprinted regions  
+5. Simulate samples (e.g., 500 samples over 20M sites)  
+6. Simulate signature detection:
+   - Leave one sample out  
+   - Mann-Whitney U test  
+   - FDR correction  
+   - Pearson correlation (observed vs. permuted labels)  
+
+**Output:**  
+- Power stats for various sample sizes  
+- Simulated methylation data  
+- Signature detection accuracy  
