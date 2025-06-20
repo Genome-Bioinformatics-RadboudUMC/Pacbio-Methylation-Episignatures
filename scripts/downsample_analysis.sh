@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script downsamples methylation data for:
+# This script downsamples methylation data from:
 # 1. Illumina MethylSeq/EMSeq (bedGraph format)
 # 2. PacBio BAM files (long-read data)
 
@@ -8,39 +8,41 @@
 # Part 1: MethylSeq/EMSeq #
 ###########################
 
-# Source: https://github.com/nebiolabs/methylation_tools
-# Tool: downsample_methylKit.py (must be in PATH or same folder)
-# Goal: Downsample EMSeq bedGraph file to approx. 30x
+# Tool: downsample_methylKit.py (from https://github.com/nebiolabs/methylation_tools)
+# Goal: Reduce EMSeq bedGraph to ~30x coverage
 
-SCRIPT=downsample_methylKit.py
-INPUT_BG="epiqc_data/EMSeq_HG002_LAB01_LAB02.combined.bedGraph"
-OUTPUT_BG="epiqc_data/EMSeq_HG002_LAB01_LAB02.combined.downsampled30X.bedGraph"
+script=downsample_methylKit.py
+input_bg="epiqc_data/EMSeq_HG002_LAB01_LAB02.combined.bedGraph"
+output_bg="epiqc_data/EMSeq_HG002_LAB01_LAB02.combined.downsampled30X.bedGraph"
 
-# Fraction (0.57) estimated to reach ~30x coverage
-grep -v track "$INPUT_BG" | python "$SCRIPT" --fraction 0.57 --bedGraph > "$OUTPUT_BG"
+# 0.57 is the fraction estimated to give ~30x
+grep -v track "$input_bg" | python "$script" --fraction 0.57 --bedGraph > "$output_bg"
 
-################################
-# Part 2: PacBio BAM Downsampling #
-################################
+#####################################
+# Part 2: PacBio BAM Downsampling   #
+#####################################
 
-# Inputs
-INPUT_BAM="/path/to/sample.bam"
-OUTPUT_DIR="/path/to/output"
-THREADS=4
-DEPTHS=(5 10 15 20 25 30)
+# Input BAM and output settings
+input_bam="/path/to/sample.bam"
+output_dir="/path/to/output"
+threads=4
 
-# Calculate current average coverage
-CURRENT_COVERAGE=$(samtools depth -a -@ "$THREADS" "$INPUT_BAM" | awk '{sum+=$3} END {print sum/NR}')
+# Coverage depths to downsample to
+depths=(5 10 15 20 25 30)
 
-# Downsample to target depths
-for TARGET_COVERAGE in "${DEPTHS[@]}"; do
-  if (( $(echo "$CURRENT_COVERAGE < $TARGET_COVERAGE" | bc -l) )); then
+# Estimate current average depth
+current_coverage=$(samtools depth -a -@ "$threads" "$input_bam" | awk '{sum+=$3} END {print sum/NR}')
+
+# Downsample loop
+for target_coverage in "${depths[@]}"; do
+  # Skip if current depth is already lower than target
+  if (( $(echo "$current_coverage < $target_coverage" | bc -l) )); then
     continue
   fi
 
-  FRACTION=$(echo "$TARGET_COVERAGE / $CURRENT_COVERAGE" | bc -l)
-  OUTPUT_BAM="$OUTPUT_DIR/sample.downsampled_${TARGET_COVERAGE}x.bam"
+  fraction=$(echo "$target_coverage / $current_coverage" | bc -l)
+  output_bam="$output_dir/sample.downsampled_${target_coverage}x.bam"
 
-  samtools view -s "$FRACTION" -@ "$THREADS" -b "$INPUT_BAM" > "$OUTPUT_BAM"
-  samtools index -@ "$THREADS" "$OUTPUT_BAM"
+  samtools view -s "$fraction" -@ "$threads" -b "$input_bam" > "$output_bam"
+  samtools index -@ "$threads" "$output_bam"
 done
