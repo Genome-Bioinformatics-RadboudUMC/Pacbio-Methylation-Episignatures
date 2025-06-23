@@ -1,4 +1,4 @@
-# Ivashchenko-Pacbio-Methylation
+# Pacbio-Methylation-Episignature
 
 Scripts used in analyses from: "_Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing_"
 
