@@ -2,6 +2,11 @@
 
 Scripts used in analyses from: "_Genome-wide methylation detection and episignature analysis using PacBio long-read sequencing_"
 
+## Table of Contents
+- [Downsampling](#downsampling)  
+- [Differential methylation analysis on PacBio LRS data](#differential-methylation-analysis-on-pacbio-lrs-data)  
+- [Power analysis](#power-analysis)  
+
 ## Downsampling
 
 This script downsamples methylation data for two types:  
