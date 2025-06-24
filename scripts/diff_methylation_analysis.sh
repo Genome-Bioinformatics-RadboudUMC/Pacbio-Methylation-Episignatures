@@ -8,17 +8,18 @@
 # 4. Validate with PCA, clustering, Pearson correlation
 
 ######################
-# Step 1: Format Data
+# Step 1: Format Data: Selection of common CpG sites with minimal 6X depth of coverage
+# (in all cases samples and at least 80% of the controls samples)
 ######################
 
 format_script=/path/to/scripts/formatCpg_forDataMatrix.py
 
 input_controls=$(ls /path/to/controls/P*.combined.bed)
 input_cases=$(ls /path/to/cases/DNA*.combined.bed)
-input_new_cases=$(ls /path/to/new_cases/DNA*.combined.bed)
 
 output_label=/path/to/output/DataMatrix_mincov6_allCas_80pcCtls
 
+# comparing male and female samples
 declare -a m_arr=("Spl_4" "Spl_6" "Spl_1" "Spl_10" "Spl_9" "VUS2" "Spl_12" \
   "Control17" "Control20" "Control22" "Control19" "Control23" "Control24" \
   "Control4" "Control10" "Control2" "Control5" "Control9" "Control8" \
@@ -31,7 +32,7 @@ declare -a f_arr=("Spl_5" "Spl_3" "Spl_11" "VUS1" \
 declare -a test_arr=("Spl_7" "Control7" "Control14")
 
 python ${format_script} \
-  -i ${input_new_cases} ${input_controls} ${input_cases} \
+  -i ${input_controls} ${input_cases} \
   -cs "${f_arr[@]}" \
   -ct "${m_arr[@]}" \
   -p "${test_arr[@]}" \
@@ -40,16 +41,24 @@ python ${format_script} \
 
 #############################################
 # Step 2+3: Run Signature Detection and Output
+# Using cross-validation
 #############################################
+
+metrics_script="/path/to/scripts/get_cases_controls_metrics_diffMedians.py"
+input_matrix=${output_label}_train_data.tsv
+metrics_file=${output_label}_cases_controls_metrics_file_onMedians_iter${iter}.tsv
+
+python ${metrics_script} \
+  -i ${input_matrix} \
+  -ct "${m_arr[@]}" \
+  -cs "${f_arr[@]}" \
+  -o ${metrics_file}
 
 signature_script=/path/to/scripts/getSignature_onDataMatrix_onMedians.py
 iter=24
 
-input_matrix=${output_label}_train_data.tsv
-metrics_file=${output_label}_cases_controls_metrics_file_onMedians_iter${iter}.tsv
-
-output_diff_matrix=/path/to/output/Cases_Controls_DiffMeansMatrix_iter${iter}.tsv
-output_signature=/path/to/output/Cases_Controls_SignatureCpGs_iter${iter}.tsv
+output_diff_matrix=/path/to/output/Cases_Controls_DiffMediansMatrix_iter${iter}.tsv # Table with descriptive metrics of statistically significant CpG sites per run
+output_signature=/path/to/output/Cases_Controls_SignatureCpGs_iter${iter}.tsv #List of CpG sites with statistically significant differential methylation per run
 
 python ${signature_script} \
   -i ${input_matrix} \
@@ -62,7 +71,7 @@ python ${signature_script} \
   -p 0.05
 
 ########################################################
-# Step 3: Extract Consensus CpG Signature from Results
+# Step 3: Extract Consensus CpG Signature from cross validation runs
 ########################################################
 
 extract_script=/path/to/scripts/extract_cpg_sign_from_iter.py

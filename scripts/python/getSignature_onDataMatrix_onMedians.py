@@ -20,9 +20,7 @@ parser.add_argument('-m','--metrics', required=True, help='Cases Controls DataMa
 parser.add_argument('-cs', '--cases', nargs='+', required=True, help='Cases samples IDs as used for training')
 parser.add_argument('-ct', '--controls', nargs='+', required=True, help='Controls samples IDs used for training')
 parser.add_argument('-dmin','--diffmin', type=float, help='Minimal required difference in median methylation percentage between cases and controls groups')
-parser.add_argument('-dmax','--diffmax', type=float, help='Maximal required difference in median methylation percentage between cases and controls groups')
 parser.add_argument('-p','--pval', required=True, type=float, help='Threshold for adjusted p-values to keep differentially methylated CpGs')
-parser.add_argument('-sp','--spread', type=float, help='Set a maximal threshold for standard deviation in cases and controls groups')
 parser.add_argument('-om', '--outmatrix', required=True, help='Path to output file with matrix of median meth differences and pvalues')
 parser.add_argument('-os', '--outsign', required=True, help='Path to output file with CpG IDs significant in methylation signature of cases')
 args = parser.parse_args()
@@ -47,22 +45,6 @@ if args.diffmin is not None:
     metrics_df = metrics_df.loc[abs(metrics_df["medians_diff"]) >= args.diffmin]
     print(metrics_df)
     print("restrict medians diffmin")
-    print("Time elapsed:", datetime.datetime.now() - start, flush=True)
-
-if args.diffmax is not None:
-    ## restrict to CpG sites with median methylation difference between cases and controls groups under specified max percentage
-    metrics_df = metrics_df.loc[abs(metrics_df["medians_diff"]) <= args.diffmax]
-    print(metrics_df)
-    print("restrict medians diffmax")
-    print("Time elapsed:", datetime.datetime.now() - start, flush=True)
-
-if args.spread is not None:
-    ## restrict to CpG sites with standard deviation by group under cutoff
-    metrics_df = metrics_df.loc[metrics_df['SD_cases'] <= args.spread]
-    print(metrics_df)
-    metrics_df = metrics_df.loc[metrics_df['SD_controls'] <= args.spread]
-    print(metrics_df)
-    print("restrict under SD threshold in both groups")
     print("Time elapsed:", datetime.datetime.now() - start, flush=True)
 
 ## filter the data matrix of methylation probabilities on selected cpgs based on dispersion filters

@@ -12,7 +12,7 @@ import datetime
 ###################################
 
 ## Parameters parser
-parser = argparse.ArgumentParser(description="Format PacBio CpGs to data matrix and restrain to sites detected in all samples")
+parser = argparse.ArgumentParser(description="Format PacBio CpGs to data matrix and filter cpg sites on coverage threshold")
 parser.add_argument('-i','--inputs', nargs='+', required=True, help='Path to PacBio methylation combined detection files (format: BED)')
 parser.add_argument('-h1','--hap1', nargs='+', help='Path to PacBio methylation hap1 detection files (format: BED)')
 parser.add_argument('-h2','--hap2', nargs='+', help='Path to PacBio methylation hap2 detection files (format: BED)')
