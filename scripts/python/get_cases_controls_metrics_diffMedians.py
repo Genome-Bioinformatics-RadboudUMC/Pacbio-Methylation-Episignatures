@@ -3,7 +3,6 @@
 import sys
 import argparse
 import numpy as np
-from scipy.stats import mannwhitneyu
 import datetime
 
 ###################################
@@ -13,7 +12,7 @@ import datetime
 ###################################
 
 ## Parameters parser
-parser = argparse.ArgumentParser(description="Format PacBio CpGs to data matrix and restrain to sites detected in all samples")
+parser = argparse.ArgumentParser(description="Create a table of statistical metrics per CpG site for cases and controls groups including median per group, standard deviation per group, and medians difference between groups")
 parser.add_argument('-i','--inmatrix', required=True, help='Path to cases controls datamatrix with methylation probabilities (format: TSV)')
 parser.add_argument('-cs', '--cases', nargs='+', required=True, help='Cases samples IDs')
 parser.add_argument('-ct', '--controls', nargs='+', required=True, help='Controls samples IDs')
@@ -26,7 +25,7 @@ start = datetime.datetime.now()
 ## write metrics for cases controls groups to outfile
 counter = 0
 with open(args.outfile, "w") as filout_metrics:
-    header = "cpg" + "\t" + "\t".join(["median_cases", "median_controls", "medians_diff", "SD_cases", "SD_controls", "pval_raw"]) + "\n"
+    header = "cpg" + "\t" + "\t".join(["median_cases", "median_controls", "medians_diff", "SD_cases", "SD_controls"]) + "\n"
     filout_metrics.write(header)
     print("Created Metrics Output file " + args.outfile)
     print("Time elapsed:", datetime.datetime.now() - start, flush=True)
@@ -53,9 +52,8 @@ with open(args.outfile, "w") as filout_metrics:
                 if abs(diff_medians) >= 5:
                     sd_cs = np.std([float(line[cas_idx[s]]) for s in args.cases], ddof=1)
                     sd_ctl = np.std([float(line[ctl_idx[s]]) for s in args.controls], ddof=1)
-                    pval = mannwhitneyu([float(line[cas_idx[s]]) for s in args.cases], [float(line[ctl_idx[s]]) for s in args.controls]).pvalue
                     ## append in corresponding iteration file
-                    to_write = [cpg] + [str(median_cs), str(median_ctl), str(diff_medians), str(sd_cs), str(sd_ctl), str(pval)]
+                    to_write = [cpg] + [str(median_cs), str(median_ctl), str(diff_medians), str(sd_cs), str(sd_ctl)]
                     filout_metrics.write("\t".join(to_write) + "\n")
 print("Process complete")
 print("Time elapsed:", datetime.datetime.now() - start, flush=True)

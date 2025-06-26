@@ -41,9 +41,11 @@ python ${format_script} \
 
 #############################################
 # Step 2+3: Run Signature Detection and Output
-# Using cross-validation
+# Using cross-validation runs: one sample left out of the training per iteration.
 #############################################
 
+## Get statistical metrics per CpG site per iteration including medians methylation difference between cases and controls groups.
+## Relaunch the script n times (n being the number of samples used in training), leaving out one sample per iteration.
 metrics_script="/path/to/scripts/get_cases_controls_metrics_diffMedians.py"
 input_matrix=${output_label}_train_data.tsv
 metrics_file=${output_label}_cases_controls_metrics_file_onMedians_iter${iter}.tsv
@@ -54,9 +56,14 @@ python ${metrics_script} \
   -cs "${f_arr[@]}" \
   -o ${metrics_file}
 
+## Filter CpG sites on medians methylation difference between cases and controls groups.
+## Perform Mann-Whitney U Test between cases and controls methylation probabilities per CpG site.
+## Adjust p-values for multitesting using FDR correction.
+## Relaunch the script n times (n being the number of samples used in training), leaving out one sample per iteration.
 signature_script=/path/to/scripts/getSignature_onDataMatrix_onMedians.py
 iter=24
 
+## Iteration counter.
 output_diff_matrix=/path/to/output/Cases_Controls_DiffMediansMatrix_iter${iter}.tsv # Table with descriptive metrics of statistically significant CpG sites per run
 output_signature=/path/to/output/Cases_Controls_SignatureCpGs_iter${iter}.tsv #List of CpG sites with statistically significant differential methylation per run
 
@@ -72,6 +79,7 @@ python ${signature_script} \
 
 ########################################################
 # Step 3: Extract Consensus CpG Signature from cross validation runs
+## Consensus CpG signature: statistically significant CpG sites common to all cross validation runs.
 ########################################################
 
 extract_script=/path/to/scripts/extract_cpg_sign_from_iter.py
